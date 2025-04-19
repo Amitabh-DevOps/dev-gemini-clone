@@ -137,7 +137,7 @@ The connection string directs your application to your MongoDB database hosted o
 - Choose **Choose Connection Method**
   ![alt text](image-21.png)  
 
-- **Select Compass installed or not**, select your OS, download/launch Compass, then click **Show password** to copy the string:  
+- **Select Compass installed or not**, if not select your OS, download/launch Compass, then click **Show password** to copy the string:  
   ![alt text](image-22.png)  
 
 - Paste into `MONGODB_URI` in your `.env.local`.
