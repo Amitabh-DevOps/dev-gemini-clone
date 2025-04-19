@@ -131,7 +131,7 @@ The connection string directs your application to your MongoDB database hosted o
 
 - Sign in to [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) and create a cluster.  
   ![alt text](image-15.png)  
-- Click **Create → Copy Your database user creds*, then **Create database user**.  
+- Click **Create → Copy Your database user creds**, then **Create database user**.  
   ![alt text](image-20.png)  
 
 - Choose **Choose Connection Method**
@@ -139,7 +139,7 @@ The connection string directs your application to your MongoDB database hosted o
 
 - **Select Compass installed or not**, select your OS, download/launch Compass, then click **Show password** to copy the string:  
   ![alt text](image-22.png)  
-  
+
 - Paste into `MONGODB_URI` in your `.env.local`.
 
 > **Note:** Store your Atlas credentials securely for future use.
