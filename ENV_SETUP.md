@@ -180,6 +180,20 @@ The connection string directs your application to your MongoDB database hosted o
 
 - Paste into `MONGODB_URI` in your `.env.local`.
 
+- After that Update Network accesss to your Atlas for access the Cluster from anywhere or from your IP.
+
+- Go to `Network Access`
+
+- Click on `ADD IP ADDRESS`
+
+  ![alt text](Readme_images/image-atlas-ip.png)
+
+- Click on `Allow Access from Anywhere` and click on `confirm`
+
+- Now, You can see you allowed your Atlas to access your cluster from anywhere  
+
+  ![alt text](Readme_images/image-atlas-ip-output.png)
+
 > **Note:** Store your Atlas credentials securely for future use.
 
 ---
