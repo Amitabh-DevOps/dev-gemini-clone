@@ -4,26 +4,42 @@
   - Go to the [Google Cloud Console](https://console.cloud.google.com/) and create a project.  
   - Then search for **project** in the top search bar.  
   - Select **Create Project**.  
+    
     ![alt text](image-4.png)  
+    
   - Enter the project name (e.g., _Gemini‑Clone_) and click **Create**.  
+    
     ![alt text](image-5.png)  
+    
 
 - **Setup OAuth Consent Screen:**  
   - In the Cloud Console, select your project and navigate to **APIs & Services → OAuth consent screen**.  
   - Click **Get started**.  
+    
     ![alt text](image-10.png)  
+    
   - Fill in all details:  
     - **App info:** enter app name, support email, etc., then click **Next**.  
+      
       ![alt text](image-11.png)  
+      
     - **User type:** select **External**, then click **Next**.  
+      
       ![alt text](image-12.png)  
+      
     - **Contact info:** enter your email, then click **Next**.  
+      
       ![alt text](image-13.png)  
+      
     - Check **I agree** and click **Continue**.  
+      
       ![alt text](image-14.png)  
+      
     - Finally, click **Create**.  
   - Make sure to select your newly created project whenever you use the Cloud Console (use the project selector at top right).  
+    
     ![alt text](image-6.png)  
+    
 
 ---
 
@@ -47,9 +63,13 @@ These credentials authenticate your users via Google’s OAuth 2.0 service.
     http://your-production-domain.com/api/auth/callback/google
     https://your-production-domain.com/api/auth/callback/google
     ```  
+  
   ![alt text](image.png)  
+  
 - Click **Create**.  
+  
   ![alt text](image-1.png)  
+  
 - Copy the **Client ID** and **Client Secret**, then in your `.env.local` (created from `.env.sample`) add:  
   ```bash
   GOOGLE_ID=<your-client-id>
@@ -68,19 +88,29 @@ This key authenticates client‑side requests to various Google APIs (Maps, Plac
 
 - Select your project and go to **APIs & Services → Credentials**.  
 - Click **Create Credentials → API key**.  
+  
   ![alt text](image-8.png)  
+  
+  
   ![alt text](image-9.png)  
+  
 - **Restrict the API Key:**  
   1. Click on your new key.  
   2. Under **API restrictions**, select **Restrict key**.  
   3. Choose **Generative Language API** and click **Save**.  
+     
      ![alt text](image-7.png)  
+     
   4. Copy the key and paste it into `NEXT_PUBLIC_API_KEY` in your `.env.local`.  
 
 > **Alternative Way for API Key Generation:**  
 > Visit [https://aistudio.google.com/u/0/apikey](https://aistudio.google.com/u/0/apikey), log in with the same Google account, click **Create API key**, select your project—it will auto‑restrict to the Generative Language API.  
+
 > ![alt text](image-2.png)  
+
+
 > ![alt text](image-3.png)  
+
 > Copy that key into `NEXT_PUBLIC_API_KEY` in your `.env.local`.
 
 ---
@@ -130,15 +160,23 @@ The connection string directs your application to your MongoDB database hosted o
 **Production Setup Using MongoDB Atlas:**
 
 - Sign in to [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) and create a cluster.  
+  
   ![alt text](image-15.png)  
+  
 - Click **Create → Copy Your database user creds**, then **Create database user**.  
+  
   ![alt text](image-20.png)  
+  
 
 - Choose **Choose Connection Method**
+  
   ![alt text](image-21.png)  
+  
 
 - **Select Compass installed or not**, if not: select your OS, download/launch Compass, then click **Show password** to copy the string:  
+  
   ![alt text](image-22.png)  
+  
 
 - Paste into `MONGODB_URI` in your `.env.local`.
 
