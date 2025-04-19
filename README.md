@@ -46,7 +46,8 @@ Follow this guide to set up a DevSecOps-ready Google Gemini Clone if you cannot 
 - Refer to the [ENV_SETUP.md](ENV_SETUP.md) file for detailed instructions on configuring the environment variables as specified in the `.env.sample`.
 - Once you have collected all the required environment variables, create a `.env.local` file in the root directory of the project.
 - Enter all the correct environment variable values in the `.env.local` file.  
-  **Note:** This file will need to be uploaded to Jenkins during your CI/CD pipeline process, so please ensure that all values are accurate. Additionally, these environment variables are required at the time of the Docker build.
+
+>  **Note:** This file will need to be uploaded to Jenkins during your CI/CD pipeline process, so please ensure that all values are accurate. Additionally, these environment variables are required at the time of the Docker build.
 
 
 ---
