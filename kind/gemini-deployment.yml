@@ -50,7 +50,7 @@ spec:
               key: NEXTAUTH_SECRET
         - name: NEXTAUTH_URL
           valueFrom:
-            secretKeyRef:
+            configMapKeyRef:
               name: gemini-config
               key: NEXTAUTH_URL
         - name: NEXT_PUBLIC_API_KEY
