@@ -1,6 +1,6 @@
 ## Prerequisites: Create a Project in Google Cloud Console & setup OAuth consent screen
 - **Project and API Configuration:**
-  - Go to the [Google Cloud Console](https://console.cloud.google.com/) and create or select your production project.
+  - Go to the [Google Cloud Console](https://console.cloud.google.com/) and create project.
   - then search for `project` at top search bar
   - select a create a project.
     ![alt text](image-4.png)
@@ -152,22 +152,25 @@ The connection string directs your application to your MongoDB database hosted o
 
 - **Set Up Your Atlas Cluster:**
   - Sign in to [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) and create a cluster.
+  - click on create
+    ![alt text](image-15.png)
+  - Select free option(Note if you have already created one then it will not show the free one) and enter a Cluster name then click on create deployment
+  - Now it will popuped with Connect to <Your-cluster-name>
+    ![alt text](image-20.png)
+  - Copy both username and password and stored at somewhere.
+  - then click on create Database user
+  - After that click on Choose connection method, then click on compass
+  - after that select if you have mongodb compass or not 
+  - select your operatem system, and download and launch that compass
+  - after that copy that connection string by making on show password so that it will show your password also in string
+  - after copying that string paste it to **MONGODB_URI** in your `.env.local`
+  - then click on done
+  - now you are all set
 
-- **Create a Database User:**
-  - Create a user with a secure password and assign the necessary roles for read/write operations on your database.
-  - Store the Username and Password securely; these will later be used in your ConfigMap and secrets for your Kubernetes deployment.
+> [!NOTE]
+>
+> If you are doing for first time then only above is correct sequence, if doing second time then you know how to do all stuff, make sure to store database username and password so that if you are doing second time then it will not irritate you, then you can easly get connection string and paste your database username and password.
 
-- **Obtain the Connection String:**
-  - In Atlas, click **Connect** and choose **Connect your application**.
-  - Update the connection string template by replacing `<username>`, `<password>`, and `<database>` with your credentials and database name. For example:
-    ```
-    mongodb+srv://<username>:<password>@cluster0.mongodb.net/<database>?retryWrites=true&w=majority
-    ```
-  - Store this string as **MONGODB_URI** in your production environment.
-
-- **Security Considerations:**
-  - Use TLS (automatically enforced by Atlas) to encrypt data in transit.
-  - Store these details securely as environment variables, not in your code.
 
 ---
 
