@@ -144,6 +144,8 @@ kubectl config use-context kind-gemini-cluster-external
 
 After these commands, your kubeconfig (context `kind-gemini-cluster-external`) will point to `https://<INSTANCE_PUBLIC_IP>:45577` and ignore TLS issues.
 
+You can check it out using this command `kubectl config view --minify -o yaml`
+
 ---
 
 ## 4. Log In to ArgoCD via the Public NodePort

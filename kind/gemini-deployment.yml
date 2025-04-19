@@ -30,7 +30,7 @@ spec:
         env:
         - name: GOOGLE_ID
           valueFrom:
-            configMapKeyRef:
+            secretKeyRef:
               name: gemini-secret
               key: GOOGLE_ID
         - name: GOOGLE_SECRET
@@ -40,7 +40,7 @@ spec:
               key: GOOGLE_SECRET
         - name: MONGODB_URI
           valueFrom:
-            configMapKeyRef:
+            secretKeyRef:
               name: gemini-secret
               key: MONGODB_URI
         - name: NEXTAUTH_SECRET
@@ -50,7 +50,7 @@ spec:
               key: NEXTAUTH_SECRET
         - name: NEXTAUTH_URL
           valueFrom:
-            configMapKeyRef:
+            secretKeyRef:
               name: gemini-config
               key: NEXTAUTH_URL
         - name: NEXT_PUBLIC_API_KEY
