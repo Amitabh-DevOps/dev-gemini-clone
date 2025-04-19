@@ -1,89 +1,87 @@
-## Prerequisites: Create a Project in Google Cloud Console & Setup OAuth Consent Screen
+## Prerequisites: Create a Project in Google Cloud Console & setup OAuth consent screen
 
-### Project and API Configuration
+- **Project and API Configuration:**  
+  - Go to the [Google Cloud Console](https://console.cloud.google.com/) and create a project.  
+  - Then search for **project** in the top search bar.  
+  - Select **Create Project**.  
+    ![alt text](image-4.png)  
+  - Enter the project name (e.g., _Gemini‑Clone_) and click **Create**.  
+    ![alt text](image-5.png)  
 
-- Go to the [Google Cloud Console](https://console.cloud.google.com/) and create a project.
-- Search for **Project** in the top search bar, then click **Create Project**.  
-  ![alt text](image-4.png)
-- Enter the project name (e.g., _Gemini-Clone_) and click **Create**.  
-  ![alt text](image-5.png)
-
-### Setup OAuth Consent Screen
-
-- In the Cloud Console, select your project and navigate to **APIs & Services → OAuth consent screen**.
-- Click **Get Started**.  
-  ![alt text](image-10.png)
-- Fill in all details:
-  1. **App information:** Enter app name, support email, etc., then click **Next**.  
-     ![alt text](image-11.png)
-  2. **User type:** Select **External**, then click **Next**.  
-     ![alt text](image-12.png)
-  3. **Contact information:** Enter your email, then click **Next**.  
-     ![alt text](image-13.png)
-  4. **Scopes & terms:** Agree to the terms, then click **Continue**.  
-     ![alt text](image-14.png)
-- Click **Create** to finish.
-- Ensure this project remains selected whenever you work in the console (use the project selector at top right).  
-  ![alt text](image-6.png)
+- **Setup OAuth Consent Screen:**  
+  - In the Cloud Console, select your project and navigate to **APIs & Services → OAuth consent screen**.  
+  - Click **Get started**.  
+    ![alt text](image-10.png)  
+  - Fill in all details:  
+    - **App info:** enter app name, support email, etc., then click **Next**.  
+      ![alt text](image-11.png)  
+    - **User type:** select **External**, then click **Next**.  
+      ![alt text](image-12.png)  
+    - **Contact info:** enter your email, then click **Next**.  
+      ![alt text](image-13.png)  
+    - Check **I agree** and click **Continue**.  
+      ![alt text](image-14.png)  
+    - Finally, click **Create**.  
+  - Make sure to select your newly created project whenever you use the Cloud Console (use the project selector at top right).  
+    ![alt text](image-6.png)  
 
 ---
 
 ## 1. Google OAuth Credentials (GOOGLE_ID & GOOGLE_SECRET)
 
 **Purpose:**  
-These credentials authenticate your users via Google’s OAuth 2.0 service.
+These credentials authenticate your users via Google’s OAuth 2.0 service.
 
 **Production Setup Steps:**
 
-- In the Cloud Console, select your project and navigate to **APIs & Services → Credentials**.  
+- Select your project and go to **APIs & Services → Credentials**.  
 - Click **Create Credentials → OAuth client ID**.  
-- Choose **Web application**, enter a name, and configure:
-  - **Authorized JavaScript origins**  
+- Choose **Web application**, enter a name, and under:  
+  - **Authorized JavaScript origins**, add:  
     ```
     http://your-production-domain.com
     https://your-production-domain.com
-    ```
-  - **Authorized redirect URIs**  
+    ```  
+  - **Authorized redirect URIs**, add:  
     ```
     http://your-production-domain.com/api/auth/callback/google
     https://your-production-domain.com/api/auth/callback/google
     ```  
-  ![alt text](image.png)
+  ![alt text](image.png)  
 - Click **Create**.  
-  ![alt text](image-1.png)
+  ![alt text](image-1.png)  
 - Copy the **Client ID** and **Client Secret**, then in your `.env.local` (created from `.env.sample`) add:  
   ```bash
   GOOGLE_ID=<your-client-id>
   GOOGLE_SECRET=<your-client-secret>
-  ```
-- Click **OK** to finish.
+  ```  
+- Click **OK**.
 
 ---
 
 ## 2. Google API Key (NEXT_PUBLIC_API_KEY)
 
 **Purpose:**  
-This key authenticates client‑side requests to various Google APIs (Maps, Places, and in this case, the Generative Language API).
+This key authenticates client‑side requests to various Google APIs (Maps, Places, and the Generative Language API).
 
 **Production Setup:**
 
-- In the Cloud Console, select your project and navigate to **APIs & Services → Credentials**.  
+- Select your project and go to **APIs & Services → Credentials**.  
 - Click **Create Credentials → API key**.  
   ![alt text](image-8.png)  
-  ![alt text](image-9.png)
-
-- **Restrict the API key:**
-  1. Click on the newly created key.
-  2. Under **API restrictions**, select **Restrict key**.
+  ![alt text](image-9.png)  
+- **Restrict the API Key:**  
+  1. Click on your new key.  
+  2. Under **API restrictions**, select **Restrict key**.  
   3. Choose **Generative Language API** and click **Save**.  
-     ![alt text](image-7.png)
-  4. Copy the key and paste it into `NEXT_PUBLIC_API_KEY` in your `.env.local`.
+     ![alt text](image-7.png)  
+  4. Copy the key and paste it into `NEXT_PUBLIC_API_KEY` in your `.env.local`.  
 
-> **Alternative generation:**  
-> Visit [https://aistudio.google.com/u/0/apikey](https://aistudio.google.com/u/0/apikey), log in, click **Create API key**, choose your project. It will auto‑restrict to the Generative Language API.  
+> **Alternative Way for API Key Generation:**  
+> Visit [https://aistudio.google.com/u/0/apikey](https://aistudio.google.com/u/0/apikey), log in with the same Google account, click **Create API key**, select your project—it will auto‑restrict to the Generative Language API.  
 > ![alt text](image-2.png)  
 > ![alt text](image-3.png)  
-> Copy it into `NEXT_PUBLIC_API_KEY` in your `.env.local`.
+> Copy that key into `NEXT_PUBLIC_API_KEY` in your `.env.local`.
 
 ---
 
@@ -96,31 +94,31 @@ This secret secures sessions and token encryption for NextAuth.
 
 > **Note:** Node.js must be installed on your system (download from [nodejs.org](https://nodejs.org/en/download)).
 
-1. In your project root (`dev-gemini-clone`), run:  
-   ```bash
-   npx auth secret
-   ```
-   This generates a secure random string and creates `.env.local` if it doesn’t exist.
-2. Copy the generated value and set in your `.env.local`:  
-   ```bash
-   NEXTAUTH_SECRET=<generated-secret>
-   ```
-3. Ensure the key name is **NEXTAUTH_SECRET**.
+- In your project root (`dev-gemini-clone`), run:  
+  ```bash
+  npx auth secret
+  ```  
+  This generates a secure random string and creates `.env.local` if it doesn’t exist.
+- Copy the generated value and set in your `.env.local`:  
+  ```bash
+  NEXTAUTH_SECRET=<generated-secret>
+  ```  
+- Ensure the key name is exactly **NEXTAUTH_SECRET**.
 
 ---
 
 ## 4. Base URL for the Application (NEXTAUTH_URL)
 
 **Purpose:**  
-This URL specifies your application’s canonical domain for constructing callback URLs and other endpoints in NextAuth.
+This URL specifies your application’s canonical domain for constructing callback URLs and other NextAuth endpoints.
 
 **Production Setup:**
 
-- Replace your development URL with your production domain. For example:  
-  ```
+- Replace your development URL with your production domain in `.env.local`. For example:  
+  ```bash
   NEXTAUTH_URL=https://your-production-domain.com
-  ```
-- Ensure this value matches exactly the authorized domains in your OAuth credentials.
+  ```  
+- Ensure this matches exactly the authorized domains in your OAuth credentials.
 
 ---
 
@@ -132,16 +130,15 @@ The connection string directs your application to your MongoDB database hosted o
 **Production Setup Using MongoDB Atlas:**
 
 - Sign in to [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) and create a cluster.  
-  ![alt text](image-15.png)
-- Select **Connect → Connect your application**, then click **Show connection string**.  
-  ![alt text](image-20.png)
-- Copy the connection string (including username and password), then paste it into `MONGODB_URI` in your `.env.local`.
+  ![alt text](image-15.png)  
+- Click **Connect → Connect your application**, then **Show connection string**.  
+  ![alt text](image-20.png)  
+- Copy the connection string (including username and password) and paste it into `MONGODB_URI` in your `.env.local`.  
 - Click **Done**.
 
-> **Optional via Compass:**  
-> If prompted, choose Compass as your connection method:  
+> **If using Compass:**  
+> Choose **Connect → Compass**, select your OS, download/launch Compass, then click **Show password** to copy the string:  
 > ![alt text](image-21.png)  
-> Select your OS, download/launch Compass, then **Show password** and copy the connection string:  
 > ![alt text](image-22.png)  
 > Paste into `MONGODB_URI` in your `.env.local`.
 
@@ -153,9 +150,14 @@ The connection string directs your application to your MongoDB database hosted o
 
 - **Environment Variable Management:**  
   Use environment‑specific files (e.g., `.env.production`) excluded from version control, or leverage a secrets manager (Google Secret Manager, AWS Secrets Manager, HashiCorp Vault).
+
 - **Secure Network and Access:**  
   Restrict access via IP whitelisting, VPNs, or VPCs; enforce HTTPS.
+
 - **Regular Auditing and Rotation:**  
-  Monitor, audit, and rotate credentials (API keys, secrets) per your security policies; set up alerts for unusual activity.
+  Monitor, audit, and rotate credentials regularly; set up alerts for unusual activity.
+
 - **Logging and Monitoring:**  
-  Implement comprehensive logging/monitoring for both your application and its interactions with external APIs; integrate with cloud‑provider or third‑party tools to detect and respond to incidents.
+  Implement comprehensive logging/monitoring with cloud or third‑party tools to detect and respond to incidents.
+
+---
