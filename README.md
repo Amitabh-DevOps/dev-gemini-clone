@@ -48,7 +48,31 @@ Follow this guide to set up a DevSecOps-ready Google Gemini Clone if you cannot 
 - Enter all the correct environment variable values in the `.env.local` file.  
   **Note:** This file will need to be uploaded to Jenkins during your CI/CD pipeline process, so please ensure that all values are accurate. Additionally, these environment variables are required at the time of the Docker build.
 
+
 ---
+
+## Adding Secrets & Data in `configmap.yml` and `secrets.yml`
+
+- Keep your `.env.local` file with you.
+
+- Provide your **NEXTAUTH_URL** in your `kind/configmap.yml` from the `.env.local` file.
+
+- After that, you have to put base64‑encoded values in `kind/secrets.yml` for the following keys:  
+  **GOOGLE_ID**, **GOOGLE_SECRET**, **NEXTAUTH_SECRET**, **NEXT_PUBLIC_API_KEY**, **MONGODB_URI**
+
+- For encoding, you can use the command:  
+
+  ```bash
+  echo -n "<STRING_TO_ENCODE>" | base64
+  ```
+
+- For decoding, you can use the command:  
+
+  ```bash
+  echo -n "<STRING_TO_DECODE>" | base64 --decode
+  ```
+
+--- 
 
 
 ## Prerequisites for Kubernetes & ArgoCD
