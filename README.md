@@ -701,4 +701,3 @@ This comprehensive configuration establishes a robust DevSecOps workflow ready f
 
 
 In case you can not access it, then here is YT video link : https://youtu.be/CCWsMZtri2I?si=teF9ThDoXBWp_AmO
-
