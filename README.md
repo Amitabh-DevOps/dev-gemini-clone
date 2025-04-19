@@ -264,7 +264,7 @@ Click **Create App**. Once the application is healthy, you can access it at `<IN
 
 #### ArgoCD Application Dashboard:
 
-   ![ArgoCD-Application-Dashboard](Readme_images/image.png)
+   ![ArgoCD-Application-Dashboard](Readme_images/image-argo.png)
 
 ---
 
@@ -670,13 +670,13 @@ kubectl get secret --namespace prometheus stable-grafana -o jsonpath="{.data.adm
 Now that Prometheus and Grafana are set up, you can use Grafana to monitor your application metrics. Grafana will pull metrics from Prometheus, allowing you to create dashboards to visualize various aspects of your application’s performance.
 
 #### Grafana Dashboard
-![Grafana-dashboard](Readme_images/image-2.png)
+![Grafana-dashboard](Readme_images/image-g1.png)
 
 #### Kubernetes / Compute Resources / Cluster
-![Prometheous-cluster-dashboard](Readme_images/image-3.png)
+![Prometheous-cluster-dashboard](Readme_images/image-g2.png)
 
 #### Kubernetes / API Server
-![Kubernetes-API-server](Readme_images/image-4.png)
+![Kubernetes-API-server](Readme_images/image-g3.png)
 
 ---
 
