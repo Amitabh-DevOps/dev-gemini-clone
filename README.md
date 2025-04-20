@@ -22,7 +22,7 @@ When you need to test your Docker image to ensure it is functioning correctly an
 >   [!NOTE]
 >
 >   -   Your `.env.local` should be with your real env in your root dir before your you build the images
->   -   Run the container using that `.env.file`, for using env file in docker run command you can use `docker run --env-file .env.local <Other-part-of-command>`
+>   -   Run the container using that `.env.file`, for using env file in docker run command you can use `docker run -d --name gemini  --env-file .env.local -p 3000:3000 <IMAGE_NAME>`
 
 ---
 
