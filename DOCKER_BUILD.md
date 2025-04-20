@@ -77,7 +77,7 @@ Open the deployment file and set the container image to the pushed version:
 
 ```yaml
 containers:
-  - name: gemini-app
+  - name: gemini
     image: <existing-docker-image>
 ```
 
@@ -85,6 +85,6 @@ containers:
 
 ```yaml
 containers:
-  - name: gemini-app
+  - name: gemini
     image: <your-dockerhub-username>/<docker-image-name>:<image-version>
 ```
