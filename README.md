@@ -22,7 +22,7 @@ When you need to test your Docker image to ensure it is functioning correctly an
 
 > [!IMPORTANT]
 >
->    1. Replace <YOUR_DOMAIN_NAME> with your actual domain name throughout this guide.
+>    1. Replace `<YOUR_DOMAIN_NAME>` with your actual domain name throughout this guide.
 >    2. Add an A record in your domain provider’s DNS settings, pointing your instance’s public IP to the desired subdomain. Use that subdomain in this guide (e.g., app.example.com)
 
 ---
