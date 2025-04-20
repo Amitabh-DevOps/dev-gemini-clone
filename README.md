@@ -14,9 +14,15 @@ When you need to test your Docker image to ensure it is functioning correctly an
 
 ## Prerequisites
 
-1. A built Docker image.
-2. A running Docker container using that image.
-3. A configured `.env.local` file used to build the image and run the container.
+1. A configured `.env.local` file used to build the image and run the container.
+2. Refer to the [ENV_SETUP.md](ENV_SETUP.md) file for detailed instructions on configuring the environment variables as specified in the `.env.sample`.
+3. A built Docker image.
+4. A running Docker container using that image.
+
+>   [!NOTE]
+>
+>   -   Your `.env.local` should be with your real env in your root dir before your you build the images
+>   -   Run the container using that `.env.file`, for using env file in docker run command you can use `docker run --env-file .env.local <Other-part-of-command>`
 
 ---
 
