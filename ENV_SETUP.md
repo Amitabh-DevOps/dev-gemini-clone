@@ -54,16 +54,20 @@ These credentials authenticate your users via Google’s OAuth 2.0 service.
 - Click **Create Credentials → OAuth client ID**.  
 - Choose **Web application**, enter a name, and under:  
   - **Authorized JavaScript origins**, add:  
+
     ```
     http://your-production-domain.com
     https://your-production-domain.com
     ```  
+
   - **Authorized redirect URIs**, add:  
+
     ```
     http://your-production-domain.com/api/auth/callback/google
     https://your-production-domain.com/api/auth/callback/google
     ```  
   
+
   ![alt text](Readme_images/image.png)  
 
 - Click **Create**.  
@@ -71,10 +75,12 @@ These credentials authenticate your users via Google’s OAuth 2.0 service.
   ![alt text](Readme_images/image-1.png)  
 
 - Copy the **Client ID** and **Client Secret**, then in your `.env.local` (created from `.env.sample`) add:  
+
   ```bash
   GOOGLE_ID=<your-client-id>
   GOOGLE_SECRET=<your-client-secret>
   ```  
+
 - Click **OK**.
 
 ---
@@ -104,6 +110,7 @@ This key authenticates client‑side requests to various Google APIs (Maps, Plac
   4. Copy the key and paste it into `NEXT_PUBLIC_API_KEY` in your `.env.local`.  
 
 > **Alternative Way for API Key Generation:**  
+>
 > Visit [https://aistudio.google.com/u/0/apikey](https://aistudio.google.com/u/0/apikey), log in with the same Google account, click **Create API key**, select your project—it will auto‑restrict to the Generative Language API.  
 
 > ![alt text](Readme_images/image-2.png)  
@@ -125,14 +132,18 @@ This secret secures sessions and token encryption for NextAuth.
 > **Note:** Node.js must be installed on your system (download from [nodejs.org](https://nodejs.org/en/download)).
 
 - In your project root (`dev-gemini-clone`), run:  
+
   ```bash
   npx auth secret
   ```  
+
   This generates a secure random string and creates `.env.local` if it doesn’t exist.
 - Copy the generated value and set in your `.env.local`:  
+
   ```bash
   NEXTAUTH_SECRET=<generated-secret>
   ```  
+
 - Ensure the key name is exactly **NEXTAUTH_SECRET**.
 
 ---
@@ -145,9 +156,11 @@ This URL specifies your application’s canonical domain for constructing callba
 **Production Setup:**
 
 - Replace your development URL with your production domain in `.env.local`. For example:  
+
   ```bash
   NEXTAUTH_URL=https://your-production-domain.com
   ```  
+  
 - Ensure this matches exactly the authorized domains in your OAuth credentials.
 
 ---
