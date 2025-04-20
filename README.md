@@ -58,11 +58,11 @@ Follow this [DOCKER_BUILD.md](DOCKER_BUILD.md) to `Build → Tag → Push Docker
 
 >  [!CAUTION]
 >  
->  -  Ensure your .env.local file is present in the project root when running the docker build command, as Next.js apps require build‑time environment variables prefixed with NEXT_.
+>  -  Ensure your `.env.local` file is present in the project root when running the `docker build` command, as `Next.js` apps require build‑time environment variables prefixed with `NEXT_`.
 >
->  -  In other words, your .env.local must exist before you run docker build with the appropriate environment variables.
+>  -  In other words, your `.env.local` must exist before you run `docker build` with the appropriate environment variables.
 >
->  -  You do not need to specify --env-file .env.local in the docker build command; Docker will automatically load .env.local if it’s present in the build context.
+>  -  You do not need to specify `--env-file .env.local` in the `docker build` command; Docker will automatically load `.env.local` if it’s present in the build context.
 
 ---
 
