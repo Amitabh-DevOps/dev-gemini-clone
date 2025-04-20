@@ -52,6 +52,16 @@ Follow this guide to set up a DevSecOps-ready Google Gemini Clone if you cannot 
 
 ---
 
+## Build → Tag → Push Docker Image → Update Kubernetes Deployment
+
+Follow this [DOCKER_BUILD.md](DOCKER_BUILD.md) to `Build → Tag → Push Docker Image → Update Kubernetes Deployment` and then follow next steps.
+
+>  [!CAUTION]
+>  
+>  Ensure your .env.local file is present in the project root when running docker build. Next.js requires all build‑time environment variables prefixed with NEXT_.
+
+---
+
 ## Adding Secrets & Data in `configmap.yml` and `secrets.yml`
 
 - Keep your `.env.local` file with you.
