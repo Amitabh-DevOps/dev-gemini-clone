@@ -12,7 +12,7 @@ An advanced Gemini Clone built with Next.js, featuring enhanced functionality an
 
 ## Purpose
 
-Follow this guide to set up a DevSecOps-ready Google Gemini Clone if you cannot afford the AWS EKS bill and associated costs.
+Follow this guide to set up a DevSecOps-ready Google Gemini Clone if you can afford the AWS EKS bill and associated costs.
 
 ---
 
@@ -25,10 +25,10 @@ Follow this guide to set up a DevSecOps-ready Google Gemini Clone if you cannot 
 - Open the integrated terminal in VSCode.
 - Login to your VPS or EC2 Instance via SSH
 - Now again Clone that repo into that VPS or EC2 Instance.
-- Then switch to the `kind` branch, and go to root dir `dev-gemini-clone` using the command:
+- Then switch to the `DevOps` branch, and go to root dir `dev-gemini-clone` using the command:
 
   ```bash
-  git checkout kind
+  git checkout DevOps
 
   cd dev-gemini-clone
   ```
@@ -70,9 +70,9 @@ Follow this [DOCKER_BUILD.md](DOCKER_BUILD.md) to `Build → Tag → Push Docker
 
 - Keep your `.env.local` file with you.
 
-- Provide your **NEXTAUTH_URL** in your `kind/configmap.yml` from the `.env.local` file.
+- Provide your **NEXTAUTH_URL** in your `kubernetes/configmap.yml` from the `.env.local` file.
 
-- After that, you have to put base64‑encoded values in `kind/secrets.yml` for the following keys:  
+- After that, you have to put base64‑encoded values in `kubernetes/secrets.yml` for the following keys:  
   **GOOGLE_ID**, **GOOGLE_SECRET**, **NEXTAUTH_SECRET**, **NEXT_PUBLIC_API_KEY**, **MONGODB_URI**
 
 - For encoding, you can use the command:  
@@ -93,7 +93,7 @@ Follow this [DOCKER_BUILD.md](DOCKER_BUILD.md) to `Build → Tag → Push Docker
 ## Prerequisites for Kubernetes & ArgoCD
 
 - **Docker** installed and configured  
-- **Kind** (Kubernetes in Docker)  
+- **EKSCTL** (Amazon Elastic Kubernetes Service)  
 - **kubectl**  
 - **aws-cli** (with `aws configure` completed)
 
@@ -105,120 +105,104 @@ Follow this [DOCKER_BUILD.md](DOCKER_BUILD.md) to `Build → Tag → Push Docker
 >
 >    [how-to-install-essential-devops-tools-on-ubuntulinux](https://amitabhdevops.hashnode.dev/how-to-install-essential-devops-tools-on-ubuntulinux)
 
+---
+
+# End-to-End Setup for Deploying Applications with ArgoCD and EKS
+
+This README provides a complete step-by-step guide with all the commands required to set up ArgoCD on an AWS EKS cluster, deploy your applications, and configure GitOps.
 
 ---
 
->  [!IMPORTANT]
->
->  - **Replace** `<INSTANCE_PUBLIC_IP>` with your actual instance IP address in this guide wherever you see that.  
+# To create EKS Cluster using Terraform:
+
+- Go to [teTerraform-EKS-Deploymentxt](Terraform-EKS-Deployment) dir and comeback after EKS Cluster creation and follow next steps
 
 ---
 
+## **2. Deploy ArgoCD**
 
-## 1. Create the Kind Cluster
-
-Create your cluster using the following command with your custom configuration (stored in `kind-config.yml`):
-
-```bash
-kind create cluster --name gemini-cluster --config kind-config.yml
-```
-
----
-
-## 2. Install ArgoCD in the Cluster
-
-Create the ArgoCD namespace and install ArgoCD using the official manifests:
-
+### **Create the ArgoCD Namespace**
 ```bash
 kubectl create namespace argocd
+```
+
+### **Install ArgoCD Using Official Manifests**
+```bash
 kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 ```
 
-ArgoCD’s server is exposed as a NodePort service (e.g., port mappings such as `80:30446/TCP` or `443:30884/TCP`). You can access its UI via your public IP.
-
----
-
-## 3. Update Kubeconfig for External API Access
-
-By default, Kind uses a self-signed certificate for internal IPs. Update your kubeconfig so the external API server becomes reachable and bypasses TLS verification:
-
+### **Verify ArgoCD Pods**
 ```bash
-kubectl config get-contexts
-
-kubectl config set-cluster kind-gemini-cluster \
-  --server=https://<INSTANCE_PUBLIC_IP>:45577 \
-  --insecure-skip-tls-verify=true
-
-kubectl config set-context kind-gemini-cluster-external \
-  --cluster=kind-gemini-cluster \
-  --user=kind-gemini-cluster
-
-kubectl config use-context kind-gemini-cluster-external
+watch kubectl get pods -n argocd
 ```
 
-After these commands, your kubeconfig (context `kind-gemini-cluster-external`) will point to `https://<INSTANCE_PUBLIC_IP>:45577` and ignore TLS issues.
-
-You can check it out using this command `kubectl config view --minify -o yaml`
-
----
-
-## 4. Log In to ArgoCD via the Public NodePort
-
-Since the ArgoCD service is now exposed on a NodePort, perform the following steps to log in:
-
-1. Patch the ArgoCD service to expose it as NodePort:
-   ```bash
-   kubectl patch svc argocd-server -n argocd -p '{"spec":{"type": "NodePort"}}'
-   kubectl get svc -n argocd
-   ```
-2. Port-forward the ArgoCD server to expose it on a specific NodePort (example using port `32540`):
-   ```bash
-   kubectl port-forward --address 0.0.0.0 svc/argocd-server <NodePort_OF_ARGOCD_SERVER>:80 -n argocd &
-   ```
-3. Access ArgoCD via `<INSTANCE_PUBLIC_IP>:<NodePort_OF_ARGOCD_SERVER>`.  
-4. Retrieve the initial admin password:
-   ```bash
-   kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 -d
-   ```
-5. After logging in to the ArgoCD UI, change the admin password.  
-6. Log in via the CLI with:
-   ```bash
-   argocd login <INSTANCE_PUBLIC_IP>:<NodePort_OF_ARGOCD_SERVER> --username admin --insecure
-   ```
-
----
-
-## 5. Add the External Kind Cluster to ArgoCD
-
-With your kubeconfig and ArgoCD login set up, add your external Kind cluster to ArgoCD using:
-
+### **Install ArgoCD CLI**
 ```bash
-argocd cluster add kind-gemini-cluster-external --name gemini-cluster --insecure
+curl --silent --location -o /usr/local/bin/argocd \
+  https://github.com/argoproj/argo-cd/releases/download/v2.4.7/argocd-linux-amd64
+chmod +x /usr/local/bin/argocd
+argocd version
 ```
 
-This command creates (or updates) the `argocd-manager` service account on the target cluster. To verify, run:
+### **Change ArgoCD Server Service Type to NodePort**
+```bash
+kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "NodePort"}}'
+```
 
+### **Verify the NodePort Service**
+```bash
+kubectl get svc -n argocd
+```
+
+### **Expose the Port on Security Groups**
+- In the AWS Console, update the security group for your EKS worker nodes to allow inbound traffic on the NodePort assigned to the `argocd-server` service.
+
+### **Access the ArgoCD Web UI**
+- Open your browser and navigate to:
+  ```
+  http://<public-ip-of-worker-node>:<NodePort>
+  ```
+
+---
+
+## **3. Configure ArgoCD for EKS**
+
+### **Login to ArgoCD Using CLI**
+```bash
+argocd login <public-ip-of-worker-node>:<NodePort> --username admin
+```
+
+### **Retrieve the Default Admin Password**
+```bash
+kubectl get secret argocd-initial-admin-secret -n argocd \
+  -o jsonpath="{.data.password}" | base64 -d
+```
+
+### **Check Available Clusters in ArgoCD**
 ```bash
 argocd cluster list
 ```
 
-The output should list two clusters:  
-- The **in-cluster** cluster (`https://kubernetes.default.svc`)  
-- Your external Kind cluster (`https://<INSTANCE_PUBLIC_IP>:45577`) identified as **gemini-cluster** with status **Successful**.
+### **Get the EKS Cluster Context**
+```bash
+kubectl config get-contexts
+```
+
+### **Add EKS Cluster to ArgoCD**
+```bash
+argocd cluster add <cluster-context-name> --name gemini-eks-cluster
+```
+- Replace `<cluster-context-name>` with your EKS cluster context name (e.g., `Amitabh@Gemini.us-west-1.eksctl.io`).
 
 ---
 
 ## 6. Additional Setup
 
-### 6.1 Add a Repository in ArgoCD
-
+### **6.1 Add a Repository in ArgoCD**
 - Go to the ArgoCD UI.  
 - Add your repository in the settings.
 
-### 6.2 Install Helm
-
-Download and install Helm using the following commands:
-
+### **6.2 Install Helm**
 ```bash
 # Download the Helm installation script
 curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
@@ -230,46 +214,49 @@ chmod 700 get_helm.sh
 ./get_helm.sh
 ```
 
-### 6.3 Install Ingress-NGINX
-
-Deploy Ingress-NGINX using this command:
-
+### **6.3 Install Ingress-NGINX**
 ```bash
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
+# Add the NGINX Ingress controller Helm repository
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+
+# Update the Helm repository to ensure you have the latest charts
+helm repo update
+
+# Install the ingress-nginx controller in the ingress-nginx namespace
+helm install ingress-nginx ingress-nginx/ingress-nginx \
+  --namespace ingress-nginx --create-namespace
 ```
 
-### 6.4 Install Metrics Server
+### **6.4 Install Metrics Server**
 
-Apply the components for the metrics server:
+-  Apply the components for the metrics server: 
 
+   ```bash
+      kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+   ```
+
+-  Then edit the metrics server deployment to add necessary arguments:
+
+   ```bash
+      kubectl -n kube-system edit deployment metrics-server
+   ```
+
+-  Add these arguments under `spec.containers.args`:
+   - `--kubelet-insecure-tls`
+   - `--kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname`
+
+-  Save the changes, then restart and verify the deployment:
+
+   ```bash
+   kubectl -n kube-system rollout restart deployment metrics-server
+   kubectl get pods -n kube-system
+   kubectl top nodes
+   ```
+
+### **6.5 Install Cert-Manager for SSL/TLS**
 ```bash
-kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
-```
-
-Then edit the metrics server deployment to add necessary arguments:
-
-```bash
-kubectl -n kube-system edit deployment metrics-server
-```
-
-Add these arguments under `spec.containers.args`:
-- `--kubelet-insecure-tls`
-- `--kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname`
-
-Save the changes, then restart and verify the deployment:
-
-```bash
-kubectl -n kube-system rollout restart deployment metrics-server
-kubectl get pods -n kube-system
-kubectl top nodes
-```
-
-### 6.5 Install Cert-Manager for SSL/TLS
-
-Deploy Cert-Manager with the following command:
-
-```bash
-kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.16.2/cert-manager.yaml
+kubectl apply -f \
+  https://github.com/cert-manager/cert-manager/releases/download/v1.16.2/cert-manager.yaml
 ```
 
 ---
@@ -279,7 +266,6 @@ kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/
 After completing the setup, create a new application in ArgoCD with the following details:
 
 ### **General Section**
-
 - **Application Name:** Choose a name for your application.  
 - **Project Name:** Select _default_.  
 - **Sync Policy:** Set to _Automatic_.  
@@ -287,27 +273,45 @@ After completing the setup, create a new application in ArgoCD with the followin
   - Check **Auto Create Namespace**.
 
 ### **Source Section**
-
 - **Repo URL:** Enter the URL of your Git repository.  
-- **Revision:** Select the branch (e.g., `kind`).  
-- **Path:** Specify the directory containing your Kubernetes manifests (e.g., `kind`).
+- **Revision:** Select the branch (e.g., `DevOps`).  
+- **Path:** Specify the directory containing your Kubernetes manifests (e.g., `kubernetes`).
 
 ### **Destination Section**
-
 - **Cluster:** Select your desired cluster.  
 - **Namespace:** Use `gemini-namespace`.
 
-Click **Create App**. Once the application is healthy, you can access it at `<INSTANCE_PUBLIC_IP>.nip.io`. For this to work, ensure the following:
+Click **Create App**. Once the application is healthy, for this to work, ensure the following:
 
-> [!IMPORTANT]
->
-> - Your `configmap.yml` file has `NEXTAUTH_URL` set to       `<INSTANCE_PUBLIC_IP>.nip.io`.  
-> - The Ingress configuration specifies the host and TLS settings to use `<INSTANCE_PUBLIC_IP>.nip.io`.
+> **IMPORTANT**
+> - Your `configmap.yml` file has `NEXTAUTH_URL` set to `<YOUR_DOMAIN_NAME>`.  
+> - The Ingress configuration specifies the host and TLS settings to use `<YOUR_DOMAIN_NAME>`.  
+> - Ensure `cert-issuer.yml` has the correct email.
+
+---
+
+## Exposing the Application via Ingress or NodePort
+
+In this step, we will walk through two options to expose your application to the outside world: one using an ALB (Application Load Balancer) with a CNAME record.
+
+1. Expose via ALB and CNAME  
+   Run the following command to get the ALB External‑IP of the ingress-nginx-controller:
+
+   ```bash
+   kubectl get svc -n ingress-nginx
+   ```
+
+2. Copy the External‑IP from the output and create a CNAME record on your domain.  
+   Update `gemini-ingress.yml` with your domain.  
+
+   ![alt text](Readme_images/image-ingress-ss.png)  
+
+3. After updating `gemini-ingress.yml`, sync the application in ArgoCD.  
+4. Once synchronized, open your browser and access the application via your domain (e.g., `amitabh.letsdeployit.com`).  
 
 
-#### ArgoCD Application Dashboard:
-
-   ![ArgoCD-Application-Dashboard](Readme_images/image-argo.png)
+#### ArgoCD Application Dashboard
+![ArgoCD-Application-Dashboard](Readme_images/image-argo.png)
 
 ---
 
@@ -620,7 +624,7 @@ sudo apt-get install trivy -y
    - Select **Pipeline script from SCM**.
    - Set **SCM** to Git and provide the repository URL.
    - Add GitHub credentials if the repository is private.
-   - Choose the `kind` branch and set **Script Path** to `Jenkinsfile`.
+   - Choose the `DevOps` branch and set **Script Path** to `Jenkinsfile`.
 
 ### 12.2: Create a CD Pipeline Job (`Gemini-CD`)
 1. From the Jenkins dashboard, click **New Item**.
@@ -631,7 +635,7 @@ sudo apt-get install trivy -y
    - Select **Pipeline script from SCM**.
    - Set **SCM** to Git and provide the repository URL.
    - Add GitHub credentials if necessary.
-   - Choose the `kind` branch and set **Script Path** to `GitOps/Jenkinsfile`.
+   - Choose the `DevOps` branch and set **Script Path** to `GitOps/Jenkinsfile`.
 
 ---
 
@@ -658,7 +662,7 @@ After your CI/CD pipeline is in place, proceed with setting up observability too
 ## Setting Up Observability with Prometheus and Grafana
 
 > [!CAUTION]
-> Go to that server, on which you have created KIND Cluster and follow below guide
+> Go to that server, on which you have created EKS Cluster and follow below guide
 
 ### 1. Add Prometheus Helm Repository
 
@@ -699,7 +703,7 @@ kubectl port-forward --address 0.0.0.0 svc/stable-grafana <NODEPORT>:80 -n prome
 
 > [!Important]
 >  Open it in your browser using the
- `<INSTANCE_PUBLIC_IP>:<NODEPORT>`, where `<INSTANCE_PUBLIC_IP>` is the server where your Kind cluster is running.
+ `<INSTANCE_PUBLIC_IP>:<NODEPORT>`, where `<INSTANCE_PUBLIC_IP>` is the server where your EKS cluster is running.
 
 ### 6. Access Grafana
 
@@ -730,7 +734,7 @@ You are all set—you have successfully completed this Google Gemini Clone proje
 - **Infrastructure Provisioning:** Terraform-based provisioning of EC2 instances for Jenkins master and agent.
 - **CI/CD Pipeline:** Jenkins master/agent setup, pipeline jobs, and integration of code quality/security tools such as OWASP, SonarQube, and Trivy.
 - **Observability:** Monitoring setup using Prometheus and Grafana.
-- **Kubernetes Integration:** Kind cluster creation and ArgoCD setup for automated deployments.
+- **Kubernetes Integration:** EKS cluster creation and ArgoCD setup for automated deployments.
 
 This comprehensive configuration establishes a robust DevSecOps workflow ready for production environments.
 
