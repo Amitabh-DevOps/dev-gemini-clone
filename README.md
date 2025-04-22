@@ -115,7 +115,7 @@ This README provides a complete step-by-step guide with all the commands require
 
 # To create EKS Cluster using Terraform:
 
-- Go to [Terraform-EKS-Deploymentxt](Terraform-EKS-Deployment) dir and comeback after EKS Cluster creation and follow next steps
+- Go to [Terraform-EKS-Deployment](Terraform-EKS-Deployment) dir and comeback after EKS Cluster creation and follow next steps
 
 ---
 
