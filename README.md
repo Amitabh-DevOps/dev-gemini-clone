@@ -115,7 +115,7 @@ This README provides a complete step-by-step guide with all the commands require
 
 # To create EKS Cluster using Terraform:
 
-- Go to [teTerraform-EKS-Deploymentxt](Terraform-EKS-Deployment) dir and comeback after EKS Cluster creation and follow next steps
+- Go to [Terraform-EKS-Deploymentxt](Terraform-EKS-Deployment) dir and comeback after EKS Cluster creation and follow next steps
 
 ---
 
@@ -137,6 +137,7 @@ watch kubectl get pods -n argocd
 ```
 
 ### **Install ArgoCD CLI**
+
 ```bash
 curl --silent --location -o /usr/local/bin/argocd \
   https://github.com/argoproj/argo-cd/releases/download/v2.4.7/argocd-linux-amd64
@@ -145,11 +146,13 @@ argocd version
 ```
 
 ### **Change ArgoCD Server Service Type to NodePort**
+
 ```bash
 kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "NodePort"}}'
 ```
 
 ### **Verify the NodePort Service**
+
 ```bash
 kubectl get svc -n argocd
 ```
@@ -159,6 +162,7 @@ kubectl get svc -n argocd
 
 ### **Access the ArgoCD Web UI**
 - Open your browser and navigate to:
+
   ```
   http://<public-ip-of-worker-node>:<NodePort>
   ```
@@ -283,10 +287,11 @@ After completing the setup, create a new application in ArgoCD with the followin
 
 Click **Create App**. Once the application is healthy, for this to work, ensure the following:
 
-> **IMPORTANT**
-> - Your `configmap.yml` file has `NEXTAUTH_URL` set to `<YOUR_DOMAIN_NAME>`.  
-> - The Ingress configuration specifies the host and TLS settings to use `<YOUR_DOMAIN_NAME>`.  
-> - Ensure `cert-issuer.yml` has the correct email.
+> [!IMPORTANT]
+>
+>    - Your `configmap.yml` file has `NEXTAUTH_URL` set to `<YOUR_DOMAIN_NAME>`.  
+>    - The Ingress configuration specifies the host and TLS settings to use `<YOUR_DOMAIN_NAME>`.  
+>    - Ensure `cert-issuer.yml` has the correct email.
 
 ---
 
