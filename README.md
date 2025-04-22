@@ -287,7 +287,7 @@ After completing the setup, create a new application in ArgoCD with the followin
 
 Before clicking on **Create App**, ensure the following:
 
-> [!IMPORTANT]
+> [!CAUTION]
 >
 >    - Your `configmap.yml` file has `NEXTAUTH_URL` set to `<YOUR_DOMAIN_NAME>`.  
 >    - The Ingress configuration specifies the host and TLS settings to use `<YOUR_DOMAIN_NAME>`.  
