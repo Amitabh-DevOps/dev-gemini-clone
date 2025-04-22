@@ -285,7 +285,7 @@ After completing the setup, create a new application in ArgoCD with the followin
 - **Cluster:** Select your desired cluster.  
 - **Namespace:** Use `gemini-namespace`.
 
-Click **Create App**. Once the application is healthy, for this to work, ensure the following:
+Before clicking on **Create App**, ensure the following:
 
 > [!IMPORTANT]
 >
@@ -297,7 +297,7 @@ Click **Create App**. Once the application is healthy, for this to work, ensure 
 
 ## Exposing the Application via Ingress or NodePort
 
-In this step, we will walk through two options to expose your application to the outside world: one using an ALB (Application Load Balancer) with a CNAME record.
+In this step, Once the application is healthy, we will walk through to expose your application to the outside world: one using an ALB (Application Load Balancer) with a CNAME record.
 
 1. Expose via ALB and CNAME  
    Run the following command to get the ALB External‑IP of the ingress-nginx-controller:
