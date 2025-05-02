@@ -295,7 +295,7 @@ Before clicking on **Create App**, ensure the following:
 
 ---
 
-## Exposing the Application via Ingress or NodePort
+## Exposing the Application via Ingress
 
 In this step, Once the application is healthy, we will walk through to expose your application to the outside world, using an ALB (Application Load Balancer) with a CNAME record.
 
