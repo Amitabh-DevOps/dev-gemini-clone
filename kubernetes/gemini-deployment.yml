@@ -6,7 +6,7 @@ metadata:
   labels:
     app: gemini
 spec:
-  replicas: 10
+  replicas: 5 
   selector:
     matchLabels:
       app: gemini
@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: gemini
-        image: amitabhdevops/geminiamit:v3
+        image: amitabhdevops/geminiprod:v1
         ports:
         - containerPort: 3000
         resources:
@@ -30,8 +30,8 @@ spec:
         env:
         - name: GOOGLE_ID
           valueFrom:
-            configMapKeyRef:
-              name: gemini-config
+            secretKeyRef:
+              name: gemini-secret
               key: GOOGLE_ID
         - name: GOOGLE_SECRET
           valueFrom:
@@ -40,8 +40,8 @@ spec:
               key: GOOGLE_SECRET
         - name: MONGODB_URI
           valueFrom:
-            configMapKeyRef:
-              name: gemini-config
+            secretKeyRef:
+              name: gemini-secret
               key: MONGODB_URI
         - name: NEXTAUTH_SECRET
           valueFrom:
