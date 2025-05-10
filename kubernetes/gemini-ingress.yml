@@ -15,7 +15,7 @@ spec:
     secretName: gemini-tls-secret
   ingressClassName: nginx
   rules:
-  - host: "geminishubh.34.251.105.234.nip.io"
+  - host: geminishubh.34.251.105.234.nip.io
     http:
       paths:
       - path: /
