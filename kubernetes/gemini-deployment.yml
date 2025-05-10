@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: gemini
-        image: amitabhdevops/geminiprod:v1
+        image: devshubh2204/geminiclonenip:latest
         ports:
         - containerPort: 3000
         resources:
