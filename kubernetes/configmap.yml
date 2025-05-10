@@ -4,4 +4,7 @@ metadata:
   name: gemini-config
   namespace: gemini-namespace
 data:
-  NEXTAUTH_URL: <enter-your-domain-url> # Enter your NextAuth URL here(Domain name/URL)
+  GOOGLE_ID: 103384355930-outj5vptfg6lf5jc4kcfklhfa1sljuum.apps.googleusercontent.com
+  MONGODB_URI: mongodb://mongodb-service:27017/gemini
+  NEXTAUTH_URL: https://34.251.105.234.nip.io
+  MONGO_INITDB_ROOT_USERNAME: YWRtaW4=

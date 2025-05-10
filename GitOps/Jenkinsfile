@@ -1,7 +1,7 @@
 @Library('Shared')_
 
 pipeline {
-    agent { label 'dev-server' }
+    agent any
     
     parameters {
         string(name: 'GEMINI_DOCKER_TAG', defaultValue: 'v1', description: 'Docker tag for gemini image')
@@ -16,7 +16,7 @@ pipeline {
         
         stage("Git: Code Checkout") {
             steps {
-                clone("https://github.com/Amitabh-DevOps/dev-gemini-clone.git", "DevOps")
+                clone("https://github.com/AWS-DevOps-shubh/dev-gemini-clone.git", "dev-shubh")
             }
         }
         
@@ -29,7 +29,7 @@ pipeline {
         stage("Update: Kubernetes Manifest") {
             steps {
                 dir('kubernetes') {
-                    sh "sed -i 's|amitabhdevops/geminiamit.*|amitabhdevops/geminiamit:${params.GEMINI_DOCKER_TAG}|' gemini-deployment.yml"
+                    sh "sed -i 's|devshubh2204/geminishubham.*|devshubh2204/geminishubham:${params.GEMINI_DOCKER_TAG}|' gemini-deployment.yml"
                 }
             }
         }
@@ -48,7 +48,7 @@ pipeline {
                         git commit -m "Update gemini image to ${GEMINI_DOCKER_TAG}"
 
                         echo "Pushing changes to github: "
-                        git push https://github.com/Amitabh-DevOps/dev-gemini-clone.git DevOps
+                        git push https://github.com/AWS-DevOps-shubh/dev-gemini-clone.git dev-shubh
                     '''
                 }
             }
@@ -106,7 +106,7 @@ pipeline {
                         </p>
                     </div>
                 """,
-                to: "amitabhdevops2024@gmail.com",
+                to: "shubhamtayde2409@gmail.com",
                 from: "jenkins@example.com",
                 mimeType: 'text/html'
             )
@@ -158,7 +158,7 @@ pipeline {
                         </p>
                     </div>
                 """,
-                to: "amitabhdevops2024@gmail.com",
+                to: "shubhamtayde2409@gmail.com",
                 from: "jenkins@example.com",
                 mimeType: 'text/html'
             )
