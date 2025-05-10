@@ -11,11 +11,11 @@ metadata:
 spec:
   tls:
   - hosts:
-    - geminiamitabh.letsdeployit.com
+    - geminishubh.34.251.105.234.nip.io
     secretName: gemini-tls-secret
   ingressClassName: nginx
   rules:
-  - host: "geminiamitabh.letsdeployit.com"
+  - host: "geminishubh.34.251.105.234.nip.io"
     http:
       paths:
       - path: /
