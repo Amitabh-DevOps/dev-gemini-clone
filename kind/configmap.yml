@@ -4,8 +4,16 @@ metadata:
   name: gemini-config
   namespace: gemini-namespace
 data:
+  # Google OAuth Client ID (Public)
   GOOGLE_ID: 843731093025-0iooes2k63ir68cn0bvvqlb2h220f9qc.apps.googleusercontent.com
-  MONGODB_URI: mongodb+srv://alipeco90_db_user:D7Xr4ExRbiavbE6K@cluster0.bnl24cv.mongodb.net/ 
-  NEXTAUTH_URL: https://72.61.159.174.nip.io # Enter your NextAuth URL here(Domain name/URL)
-  MONGODB_INITDB_ROOT_USERNAME: admin
-
+  
+  # WARNING: This should be in a SECRET! Only non-sensitive variables should be here.
+  # The username is EMBEDDED in this URI: alipeco90_db_user
+  MONGODB_URI: mongodb+srv://alipeco90_db_user:D7Xr4ExRbiavbE6K@cluster0.bnl24cv.mongodb.net/
+  
+  # Application Base URL
+  NEXTAUTH_URL: https://72.61.159.174.nip.io
+  
+  # Explicitly define the application's database username, if needed by the code
+  # The previous name 'MONGODB_INITDB_ROOT_USERNAME' is typically used for initializing a local DB, not connecting to Atlas.
+  MONGODB_USERNAME: alipeco90_db_user
