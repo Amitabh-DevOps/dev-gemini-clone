@@ -6,5 +6,5 @@ metadata:
 data:
   GOOGLE_ID: 843731093025-eol05fgfiajku69sg3b9opvuautbe07v.apps.googleusercontent.com
   MONGODB_URI: mongodb+srv://alipeco90_db_user:D7Xr4ExRbiavbE6K@cluster0.bnl24cv.mongodb.net/ 
-
   NEXTAUTH_URL: https://72.61.159.174.nip.io # Enter your NextAuth URL here(Domain name/URL)
+  MONGODB_INITDB_ROOT_USERNAME: admin
