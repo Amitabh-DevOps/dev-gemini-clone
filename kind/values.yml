@@ -7,8 +7,8 @@ controller:
     - credentials-binding
     - blueocean
     - pipeline-stage-view
-    - docker-plugin           # Added Docker plugin
-    - kubernetes-cli          # Added Kubernetes CLI plugin
+    - docker-plugin
+    - kubernetes-cli
   JCasC:
     enabled: true
     configScripts:
@@ -24,7 +24,8 @@ controller:
       cpu: "500m"
       memory: "1Gi"
 
-  serviceType: ClusterIP
+  serviceType: NodePort   # <-- Change this so you can access Jenkins via browser
+  nodePort: 32000         # Optional fixed port for http://localhost:32000
 
 agent:
   enabled: true
