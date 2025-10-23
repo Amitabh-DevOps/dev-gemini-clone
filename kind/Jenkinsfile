@@ -10,7 +10,7 @@ pipeline {
     stages {
         stage('Clone Code') {
             steps {
-                git url: 'https://github.com/LondheShubham153/dev-gemini-clone.git', branch: 'kind'
+                git url: 'https://github.com/harisamjad0158/dev-gemini-clone.git', branch: 'feat/kind'
             }
         }
 
