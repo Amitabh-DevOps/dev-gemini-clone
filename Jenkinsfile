@@ -12,7 +12,6 @@ pipeline {
         
         stage('Clone Code') {
             steps {
-                // This will now pull your NEW commit
                 git url: 'https://github.com/harisamjad0158/dev-gemini-clone.git', branch: 'feat/kind'
             }
         }
@@ -21,23 +20,24 @@ pipeline {
             steps {
                 container('kaniko') {
                     withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', 
-                                                     usernameVariable: 'DOKCER_USER', 
+                                                     usernameVariable: 'DOCKER_USER', 
                                                      passwordVariable: 'DOCKER_PASS')]) {
                         
                         sh '''
                           echo "--- Creating Kaniko config.json ---"
                           mkdir -p /kaniko/.docker
                           
-                          AUTH=$(echo -n "${DOKCER_USER}:${DOCKER_PASS}" | base64)
+                          AUTH=$(echo -n "${DOCKER_USER}:${DOCKER_PASS}" | base64)
                           echo "{\\"auths\\":{\\"https://index.docker.io/v1/\\":{\\"auth\\":\\"${AUTH}\\"}}}" > /kaniko/.docker/config.json
                           
                           echo "--- Starting Kaniko build for ${IMAGE_DESTINATION} ---"
 
-                          # This is the command that will be fixed
+                          # We are adding --use-new-run to fix the filesystem bug
                           /kaniko/executor --dockerfile=Dockerfile \
                                            --context=$(pwd) \
                                            --destination=${IMAGE_DESTINATION} \
-                                           --cleanup=false   # <-- HERE IS THE FIX
+                                           --cleanup=false \
+                                           --use-new-run   # <-- THIS IS THE NEW FIX
                           
                           echo "--- Kaniko build complete ---"
                         '''
