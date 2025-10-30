@@ -1,5 +1,4 @@
 pipeline {
-    // 1. We use the 'devsecops-agent' we built in the UI
     agent {
         label 'devsecops-agent'
     }
@@ -10,17 +9,32 @@ pipeline {
     }
 
     stages {
-        
+        stage('Pod Debug Info') {
+            steps {
+                echo "--- Checking Pod info ---"
+                sh '''
+                    echo "Listing all containers in this pod:"
+                    cat /proc/1/cgroup
+                    echo "--- Environment Variables ---"
+                    env
+                    echo "--- Disk usage ---"
+                    df -h
+                    echo "--- Current directory ---"
+                    pwd
+                    echo "--- Files in workspace ---"
+                    ls -al
+                '''
+            }
+        }
+
         stage('Clone Code') {
-            steps { // <-- This stage was correct
+            steps {
                 git url: 'https://github.com/harisamjad0158/dev-gemini-clone.git', branch: 'feat/kind'
             }
         }
 
-        // 2. FIXED: 'steps' block is now the first and only child of 'stage'
         stage('Build and Push with Kaniko') {
             steps {
-                // 'container' is now INSIDE 'steps'
                 container('kaniko') {
                     withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', 
                                                      usernameVariable: 'DOCKER_USER', 
@@ -28,18 +42,15 @@ pipeline {
                         sh '''
                           echo "--- Creating Kaniko config.json ---"
                           mkdir -p /kaniko/.docker
-                          
                           AUTH=$(echo -n "${DOCKER_USER}:${DOCKER_PASS}" | base64)
                           echo "{\\"auths\\":{\\"https://index.docker.io/v1\\":{\\"auth\\":\\"${AUTH}\\"}}}" > /kaniko/.docker/config.json
                           
                           echo "--- Starting Kaniko build for ${IMAGE_DESTINATION} ---"
-
                           /kaniko/executor --dockerfile=Dockerfile \
                                            --context=$(pwd) \
                                            --destination=${IMAGE_DESTINATION} \
                                            --cleanup=false \
                                            --use-new-run
-                          
                           echo "--- Kaniko build complete ---"
                         '''
                     }
@@ -47,18 +58,12 @@ pipeline {
             }
         }
 
-        // 3. FIXED: 'steps' block is now the first and only child of 'stage'
         stage('Scan Image with Trivy') {
             steps {
-                // 'container' is now INSIDE 'steps'
                 container('trivy') {
                     sh """
                       echo "--- Running Trivy scan on ${IMAGE_DESTINATION} ---"
-                      
-                      # We tell Trivy to only scan for High/Critical issues
-                      # We remove '--exit-code 1' for now, so it doesn't fail the build
                       trivy image --severity HIGH,CRITICAL ${IMAGE_DESTINATION}
-                      
                       echo "--- Trivy scan complete ---"
                     """
                 }
@@ -76,6 +81,18 @@ pipeline {
             steps {
                 echo "Deploying image ${IMAGE_DESTINATION} to ${MY_ENV} environment"
             }
+        }
+    }
+
+    post {
+        always {
+            echo "--- Fetching agent pod logs for debug ---"
+            sh '''
+                echo "Listing all pods:"
+                kubectl get pods -o wide
+                echo "--- Logs from this pod ---"
+                kubectl logs $(hostname)
+            '''
         }
     }
 }
