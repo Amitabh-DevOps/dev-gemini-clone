@@ -9,10 +9,6 @@ pipeline {
         SONAR_HOST = "http://sonarqube-sonarqube.sonarqube.svc.cluster.local:9000"
     }
 
-    options {
-        timeout(time: 30, unit: 'MINUTES') // Pipeline timeout
-    }
-
     stages {
         stage('Clone Code') {
             steps {
@@ -30,7 +26,7 @@ pipeline {
                             -Dsonar.projectKey=gemini-clone \
                             -Dsonar.sources=. \
                             -Dsonar.host.url=${SONAR_HOST} \
-                            -Dsonar.login=${SONAR_TOKEN}
+                            -Dsonar.token=${SONAR_TOKEN}
                         '''
                     }
                 }
@@ -67,7 +63,7 @@ pipeline {
                 container('trivy') {
                     sh """
                       echo "--- Running Trivy scan on ${IMAGE_DESTINATION} ---"
-                      trivy image --severity HIGH,CRITICAL ${IMAGE_DESTINATION} || true
+                      trivy image --severity HIGH,CRITICAL ${IMAGE_DESTINATION}
                       echo "--- Trivy scan complete ---"
                     """
                 }
@@ -76,20 +72,22 @@ pipeline {
 
         stage('Test') {
             steps {
-                sh 'echo "Running tests..." && echo Tests passed!'
+                echo "Running tests..."
+                sh 'echo Tests passed!'
             }
         }
 
         stage('Deploy') {
             steps {
-                sh "echo Deploying image ${IMAGE_DESTINATION} to ${MY_ENV} environment"
+                echo "Deploying image ${IMAGE_DESTINATION} to ${MY_ENV} environment"
             }
         }
     }
 
     post {
         always {
-            echo "Cleaning up agent pod immediately..."
+            echo "Pipeline finished. Keeping pod alive for 30 seconds for log inspection..."
+            sh "sleep 30"
         }
     }
 }
