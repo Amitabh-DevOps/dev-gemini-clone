@@ -16,7 +16,7 @@ pipeline {
         stage('Clone Code') {
             steps {
                 // Clones your application code
-                git url: 'https://github.com/Amitabh-DevOps/dev-gemini-clone.git', branch: 'feat/kind'
+                git url: 'https://github.com/harisamjad0158/dev-gemini-clone.git', branch: 'feat/kind'
             }
         }
 
