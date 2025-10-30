@@ -1,6 +1,5 @@
 pipeline {
     agent {
-        // This label must match the Kubernetes agent label in Jenkins configuration
         label 'devsecops-agent'
     }
 
@@ -10,6 +9,7 @@ pipeline {
     }
 
     stages {
+
         stage('Clone Code') {
             steps {
                 echo "--- Cloning source code ---"
@@ -30,9 +30,17 @@ pipeline {
                         sh '''
                           echo "--- Creating Kaniko Docker config ---"
                           mkdir -p /kaniko/.docker
-                          
+
                           AUTH=$(echo -n "${DOCKER_USER}:${DOCKER_PASS}" | base64)
-                          echo "{\"auths\":{\"https://index.docker.io/v1/\":{\"auth\":\"${AUTH}\"}}}" > /kaniko/.docker/config.json
+                          cat <<EOF > /kaniko/.docker/config.json
+{
+  "auths": {
+    "https://index.docker.io/v1/": {
+      "auth": "${AUTH}"
+    }
+  }
+}
+EOF
 
                           echo "--- Starting Kaniko build for ${IMAGE_DESTINATION} ---"
                           /kaniko/executor \
