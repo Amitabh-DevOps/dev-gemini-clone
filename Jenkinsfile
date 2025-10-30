@@ -9,6 +9,22 @@ pipeline {
     }
 
     stages {
+        stage('Wait for Containers') {
+            steps {
+                echo "--- Waiting for sidecar containers to be ready ---"
+                script {
+                    retry(10) { // Retry up to 10 times
+                        sleep 5 // Wait 5 seconds between retries
+                        def podStatus = sh(script: "kubectl get pod $(hostname) -o jsonpath='{.status.containerStatuses[*].ready}'", returnStdout: true).trim()
+                        echo "Container readiness: ${podStatus}"
+                        if (!podStatus.contains("true")) {
+                            error "Containers not ready yet, retrying..."
+                        }
+                    }
+                }
+            }
+        }
+
         stage('Pod Debug Info') {
             steps {
                 echo "--- Checking Pod info ---"
