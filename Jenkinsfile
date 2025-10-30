@@ -1,11 +1,10 @@
 pipeline {
-    // 1. This label now matches the agent we just built in the UI
+    // 1. We use the 'devsecops-agent' we built in the UI
     agent {
         label 'devsecops-agent'
     }
 
     environment {
-        // We use your 'Amitabh-DevOps' repo
         IMAGE_DESTINATION = "johncorner158/dev-gemini-clone:latest"
         MY_ENV = "production"
     }
@@ -13,15 +12,16 @@ pipeline {
     stages {
         
         stage('Clone Code') {
-            steps {
+            steps { // <-- This stage was correct
                 git url: 'https://github.com/harisamjad0158/dev-gemini-clone.git', branch: 'feat/kind'
             }
         }
 
+        // 2. FIXED: 'steps' block is now the first and only child of 'stage'
         stage('Build and Push with Kaniko') {
-            // 2. We build inside the 'kaniko' container
-            container('kaniko') {
-                steps {
+            steps {
+                // 'container' is now INSIDE 'steps'
+                container('kaniko') {
                     withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', 
                                                      usernameVariable: 'DOCKER_USER', 
                                                      passwordVariable: 'DOCKER_PASS')]) {
@@ -34,7 +34,6 @@ pipeline {
                           
                           echo "--- Starting Kaniko build for ${IMAGE_DESTINATION} ---"
 
-                          # We use the flags to fix the multi-stage Dockerfile bug
                           /kaniko/executor --dockerfile=Dockerfile \
                                            --context=$(pwd) \
                                            --destination=${IMAGE_DESTINATION} \
@@ -48,11 +47,11 @@ pipeline {
             }
         }
 
-        // 3. This stage will now work!
+        // 3. FIXED: 'steps' block is now the first and only child of 'stage'
         stage('Scan Image with Trivy') {
-            // 4. We run this step inside the 'trivy' container
-            container('trivy') {
-                steps {
+            steps {
+                // 'container' is now INSIDE 'steps'
+                container('trivy') {
                     sh """
                       echo "--- Running Trivy scan on ${IMAGE_DESTINATION} ---"
                       
