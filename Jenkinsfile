@@ -6,6 +6,8 @@ pipeline {
     environment {
         IMAGE_DESTINATION = "johncorner158/dev-gemini-clone:latest"
         MY_ENV = "production"
+        SONAR_HOST_URL = "http://<SONARQUBE_HOST>:9000" // Replace with your SonarQube URL
+        SONAR_TOKEN = credentials('sonarqube-token')   // Jenkins Secret Text
     }
 
     stages {
@@ -64,6 +66,22 @@ EOF
                       echo "--- Running Trivy scan on ${IMAGE_DESTINATION} ---"
                       trivy image --severity HIGH,CRITICAL ${IMAGE_DESTINATION} || true
                       echo "--- Trivy scan complete ---"
+                    '''
+                }
+            }
+        }
+
+        stage('Scan with SonarQube') {
+            steps {
+                container('sonar-scanner') {
+                    sh '''
+                      echo "--- Running SonarQube analysis ---"
+                      sonar-scanner \
+                        -Dsonar.projectKey=dev-gemini-clone \
+                        -Dsonar.sources=. \
+                        -Dsonar.host.url=${SONAR_HOST_URL} \
+                        -Dsonar.login=${SONAR_TOKEN}
+                      echo "--- SonarQube analysis complete ---"
                     '''
                 }
             }
