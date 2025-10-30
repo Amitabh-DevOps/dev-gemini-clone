@@ -13,8 +13,7 @@ pipeline {
         
         stage('Clone Code') {
             steps {
-                // NOTE: Your log shows you are cloning from 'harisamjad0158'
-                // I will keep using the 'Amitabh-DevOps' repo as we discussed
+                // Using the repo from your build log
                 git url: 'https://github.com/harisamjad0158/dev-gemini-clone.git', branch: 'feat/kind'
             }
         }
@@ -28,17 +27,18 @@ pipeline {
                     //    into the $SONAR_TOKEN environment variable.
                     withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
                         
-                        // 3. FIXED: We REMOVED the '-Dsonar.login' flag.
-                        //    The 'sonar-scanner' will automatically find 
-                        //    and use the $SONAR_TOKEN variable.
-                        sh """
+                        // 3. FIXED: We are now using single-quotes (''') to avoid the
+                        //    security warning, and we are EXPLICITLY passing the
+                        //    token with -Dsonar.token=${SONAR_TOKEN}
+                        sh '''
                           echo "--- Running SonarQube scan ---"
                           
                           sonar-scanner \
                             -Dsonar.projectKey=gemini-clone \
                             -Dsonar.sources=. \
-                            -Dsonar.host.url=${SONAR_HOST}
-                        """
+                            -Dsonar.host.url=${SONAR_HOST} \
+                            -Dsonar.token=${SONAR_TOKEN}
+                        '''
                     }
                 }
             }
