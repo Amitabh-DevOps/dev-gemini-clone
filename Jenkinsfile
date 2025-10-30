@@ -86,12 +86,18 @@ pipeline {
 
     post {
         always {
-            echo "--- Fetching agent pod logs for debug ---"
+            echo "--- Fetching logs for all containers in the pod ---"
             sh '''
-                echo "Listing all pods:"
-                kubectl get pods -o wide
-                echo "--- Logs from this pod ---"
-                kubectl logs $(hostname)
+                POD_NAME=$(hostname)
+                echo "Pod Name: $POD_NAME"
+                echo "--- Logs for main jenkins container ---"
+                kubectl logs $POD_NAME -c jenkins || true
+                echo "--- Logs for kaniko container ---"
+                kubectl logs $POD_NAME -c kaniko || true
+                echo "--- Logs for trivy container ---"
+                kubectl logs $POD_NAME -c trivy || true
+                echo "--- Describe pod for detailed info ---"
+                kubectl describe pod $POD_NAME
             '''
         }
     }
