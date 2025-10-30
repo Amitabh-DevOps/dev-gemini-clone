@@ -1,4 +1,5 @@
 pipeline {
+    // Use the 'devsecops-agent' we built in the UI
     agent {
         label 'devsecops-agent'
     }
@@ -9,40 +10,7 @@ pipeline {
     }
 
     stages {
-        stage('Wait for Containers') {
-            steps {
-                echo "--- Waiting for sidecar containers to be ready ---"
-                script {
-                    retry(10) { // Retry up to 10 times
-                        sleep 5 // Wait 5 seconds between retries
-                        def podStatus = sh(script: "kubectl get pod $(hostname) -o jsonpath='{.status.containerStatuses[*].ready}'", returnStdout: true).trim()
-                        echo "Container readiness: ${podStatus}"
-                        if (!podStatus.contains("true")) {
-                            error "Containers not ready yet, retrying..."
-                        }
-                    }
-                }
-            }
-        }
-
-        stage('Pod Debug Info') {
-            steps {
-                echo "--- Checking Pod info ---"
-                sh '''
-                    echo "Listing all containers in this pod:"
-                    cat /proc/1/cgroup
-                    echo "--- Environment Variables ---"
-                    env
-                    echo "--- Disk usage ---"
-                    df -h
-                    echo "--- Current directory ---"
-                    pwd
-                    echo "--- Files in workspace ---"
-                    ls -al
-                '''
-            }
-        }
-
+        
         stage('Clone Code') {
             steps {
                 git url: 'https://github.com/harisamjad0158/dev-gemini-clone.git', branch: 'feat/kind'
@@ -52,22 +20,25 @@ pipeline {
         stage('Build and Push with Kaniko') {
             steps {
                 container('kaniko') {
-                    withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', 
-                                                     usernameVariable: 'DOCKER_USER', 
-                                                     passwordVariable: 'DOCKER_PASS')]) {
+                    withCredentials([usernamePassword(
+                        credentialsId: 'dockerhub-creds', 
+                        usernameVariable: 'DOCKER_USER', 
+                        passwordVariable: 'DOCKER_PASS'
+                    )]) {
                         sh '''
-                          echo "--- Creating Kaniko config.json ---"
-                          mkdir -p /kaniko/.docker
-                          AUTH=$(echo -n "${DOCKER_USER}:${DOCKER_PASS}" | base64)
-                          echo "{\\"auths\\":{\\"https://index.docker.io/v1\\":{\\"auth\\":\\"${AUTH}\\"}}}" > /kaniko/.docker/config.json
-                          
-                          echo "--- Starting Kaniko build for ${IMAGE_DESTINATION} ---"
-                          /kaniko/executor --dockerfile=Dockerfile \
-                                           --context=$(pwd) \
-                                           --destination=${IMAGE_DESTINATION} \
-                                           --cleanup=false \
-                                           --use-new-run
-                          echo "--- Kaniko build complete ---"
+                            echo "--- Creating Kaniko config.json ---"
+                            mkdir -p /kaniko/.docker
+
+                            AUTH=$(echo -n "${DOCKER_USER}:${DOCKER_PASS}" | base64)
+                            echo "{\\"auths\\":{\\"https://index.docker.io/v1\\":{\\"auth\\":\\"${AUTH}\\"}}}" > /kaniko/.docker/config.json
+
+                            echo "--- Starting Kaniko build for ${IMAGE_DESTINATION} ---"
+                            /kaniko/executor --dockerfile=Dockerfile \
+                                             --context=$(pwd) \
+                                             --destination=${IMAGE_DESTINATION} \
+                                             --cleanup=false \
+                                             --use-new-run
+                            echo "--- Kaniko build complete ---"
                         '''
                     }
                 }
@@ -77,11 +48,11 @@ pipeline {
         stage('Scan Image with Trivy') {
             steps {
                 container('trivy') {
-                    sh """
-                      echo "--- Running Trivy scan on ${IMAGE_DESTINATION} ---"
-                      trivy image --severity HIGH,CRITICAL ${IMAGE_DESTINATION}
-                      echo "--- Trivy scan complete ---"
-                    """
+                    sh '''
+                        echo "--- Running Trivy scan on ${IMAGE_DESTINATION} ---"
+                        trivy image --severity HIGH,CRITICAL ${IMAGE_DESTINATION}
+                        echo "--- Trivy scan complete ---"
+                    '''
                 }
             }
         }
@@ -98,23 +69,13 @@ pipeline {
                 echo "Deploying image ${IMAGE_DESTINATION} to ${MY_ENV} environment"
             }
         }
-    }
 
-    post {
-        always {
-            echo "--- Fetching logs for all containers in the pod ---"
-            sh '''
-                POD_NAME=$(hostname)
-                echo "Pod Name: $POD_NAME"
-                echo "--- Logs for main jenkins container ---"
-                kubectl logs $POD_NAME -c jenkins || true
-                echo "--- Logs for kaniko container ---"
-                kubectl logs $POD_NAME -c kaniko || true
-                echo "--- Logs for trivy container ---"
-                kubectl logs $POD_NAME -c trivy || true
-                echo "--- Describe pod for detailed info ---"
-                kubectl describe pod $POD_NAME
-            '''
+        stage('Check Pod Status') {
+            steps {
+                // Use single quotes to avoid Groovy interpreting $
+                sh 'kubectl get pods -n jenkins'
+                sh 'kubectl describe pod -n jenkins'
+            }
         }
     }
 }
