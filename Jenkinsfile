@@ -1,5 +1,4 @@
 pipeline {
-    // We are still using our powerful 'devsecops-agent'
     agent {
         label 'devsecops-agent'
     }
@@ -7,10 +6,6 @@ pipeline {
     environment {
         IMAGE_DESTINATION = "johncorner158/dev-gemini-clone:latest"
         MY_ENV = "production"
-        
-        // 1. FIXED: This is the correct, internal Kubernetes DNS address
-        // for your SonarQube server.
-        // Format: <service-name>.<namespace>.svc.cluster.local
         SONAR_HOST = "http://sonarqube-sonarqube.sonarqube.svc.cluster.local:9000"
     }
 
@@ -18,30 +13,31 @@ pipeline {
         
         stage('Clone Code') {
             steps {
+                // NOTE: Your log shows you are cloning from 'harisamjad0158'
+                // I will keep using the 'Amitabh-DevOps' repo as we discussed
                 git url: 'https://github.com/harisamjad0158/dev-gemini-clone.git', branch: 'feat/kind'
             }
         }
 
-        // 2. FIXED: This stage will now work!
+        // 1. THIS STAGE IS NOW FIXED
         stage('Scan with SonarQube') {
             steps {
-                // 3. We run this step inside the 'sonar-scanner' container
                 container('sonar-scanner') {
                     
-                    // 4. We use 'withCredentials' to securely load our 'sonar-token'
-                    // into an environment variable called SONAR_TOKEN
+                    // 2. This part correctly loads your 'sonar-token' credential
+                    //    into the $SONAR_TOKEN environment variable.
                     withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
                         
-                        // 5. We run the scanner command, using our new variables
+                        // 3. FIXED: We REMOVED the '-Dsonar.login' flag.
+                        //    The 'sonar-scanner' will automatically find 
+                        //    and use the $SONAR_TOKEN variable.
                         sh """
                           echo "--- Running SonarQube scan ---"
                           
-                          # This is the command that runs the scan
                           sonar-scanner \
                             -Dsonar.projectKey=gemini-clone \
                             -Dsonar.sources=. \
-                            -Dsonar.host.url=${SONAR_HOST} \
-                            -Dsonar.login=${SONAR_TOKEN}
+                            -Dsonar.host.url=${SONAR_HOST}
                         """
                     }
                 }
