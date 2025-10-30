@@ -11,7 +11,6 @@ pipeline {
 
     options {
         timeout(time: 30, unit: 'MINUTES') // Pipeline timeout
-        timestamps()                        // Add timestamps to logs
     }
 
     stages {
@@ -91,7 +90,6 @@ pipeline {
     post {
         always {
             echo "Cleaning up agent pod immediately..."
-            // Optionally add cleanup commands if needed
         }
     }
 }
