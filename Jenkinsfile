@@ -1,97 +1,50 @@
-pipeline {
-    agent {
-        kubernetes {
-            label 'devsecops-agent'
-            defaultContainer 'jnlp'
-            yamlFile 'pod-template.yaml'  // Make sure this file exists in your repo
-        }
-    }
+podTemplate(yamlFile: 'pod-template.yaml') {
+    node(POD_LABEL) {
 
-    environment {
-        SONAR_TOKEN = credentials('jenkins-token1')  // Sonar token stored in Jenkins credentials
-    }
-
-    stages {
-
-        stage('Checkout Code') {
-            steps {
-                echo '--- Cloning source code ---'
-                git url: 'https://github.com/harisamjad0158/dev-gemini-clone.git', branch: 'feat/kind'
-            }
+        stage('Clone Code') {
+            echo '--- Cloning source code ---'
+            checkout scm
         }
 
         stage('SonarQube Scan') {
-            steps {
-                container('sonar-scanner') {
-                    echo '--- Running SonarQube scan ---'
-                    sh '''
+            container('sonar-scanner') {
+                withCredentials([string(credentialsId: 'jenkins-token1', variable: 'SONAR_TOKEN')]) {
+                    sh """
+                        echo '--- Running SonarQube scan ---'
                         sonar-scanner \
                         -Dsonar.projectKey=gemini-clone \
                         -Dsonar.sources=. \
                         -Dsonar.host.url=http://sonarqube-sonarqube.sonarqube.svc.cluster.local:9000 \
-                        -Dsonar.login=$SONAR_TOKEN \
+                        -Dsonar.token=$SONAR_TOKEN \
                         -Dsonar.verbose=true
-                    '''
+                    """
                 }
-            }
-        }
-
-        stage('Build and Push with Kaniko') {
-            steps {
-                container('kaniko') {
-                    echo '--- Building Docker image with Kaniko ---'
-                    sh '''
-                        /kaniko/executor \
-                        --dockerfile=Dockerfile \
-                        --context=dir://. \
-                        --destination=your-docker-repo/gemini-clone:latest \
-                        --insecure
-                    '''
-                }
-            }
-        }
-
-        stage('Scan Image with Trivy') {
-            steps {
-                container('trivy') {
-                    echo '--- Scanning Docker image with Trivy ---'
-                    sh 'trivy image your-docker-repo/gemini-clone:latest'
-                }
-            }
-        }
-
-        stage('Test') {
-            steps {
-                echo '--- Running tests ---'
-                sh 'echo "Implement your tests here"'
-            }
-        }
-
-        stage('Deploy') {
-            steps {
-                echo '--- Deploying application ---'
-                sh 'echo "Implement your deployment here"'
             }
         }
 
         stage('Debug Delay') {
-            steps {
-                echo '--- Waiting 1 minute for pod logs inspection ---'
-                sh 'sleep 60'
+            echo 'Sleeping 60 seconds to keep devsecops-agent pod alive for logs...'
+            sleep 60
+        }
+
+        stage('Build and Push with Kaniko') {
+            container('kaniko') {
+                sh 'echo "Build step goes here"'
             }
         }
 
-    }
+        stage('Scan Image with Trivy') {
+            container('trivy') {
+                sh 'echo "Trivy scan goes here"'
+            }
+        }
 
-    post {
-        always {
-            echo '--- Pipeline finished ---'
+        stage('Test') {
+            sh 'echo "Test stage"'
         }
-        success {
-            echo '--- Pipeline succeeded ---'
-        }
-        failure {
-            echo '--- Pipeline failed ---'
+
+        stage('Deploy') {
+            sh 'echo "Deploy stage"'
         }
     }
 }
