@@ -1,74 +1,70 @@
-podTemplate(
-    label: 'devsecops-agent',
-    containers: [
-        containerTemplate(
-            name: 'jnlp',
-            image: 'jenkins/inbound-agent:alpine',
-            command: 'cat',
-            ttyEnabled: true
-        ),
-        containerTemplate(
-            name: 'sonar-scanner',
-            image: 'sonarsource/sonar-scanner-cli:latest',
-            command: 'cat',
-            ttyEnabled: true
-        ),
-        containerTemplate(
-            name: 'kaniko',
-            image: 'gcr.io/kaniko-project/executor:debug',
-            command: 'cat',
-            ttyEnabled: true
-        ),
-        containerTemplate(
-            name: 'trivy',
-            image: 'aquasec/trivy:latest',
-            command: 'cat',
-            ttyEnabled: true
-        )
-    ],
-    volumes: [
-        emptyDirVolume(mountPath: '/home/jenkins/agent', memory: false)
-    ],
-    idleMinutes: 1   // Keep pod alive for 1 minute after job completion
-) {
-    node('devsecops-agent') {
+pipeline {
+    agent {
+        kubernetes {
+            label 'devsecops-agent'
+            defaultContainer 'jnlp'
+            yamlFile 'pod-template.yaml'  // Your pod template file in workspace
+        }
+    }
 
+    environment {
+        SONAR_HOST_URL = 'http://sonarqube-sonarqube.sonarqube.svc.cluster.local:9000'
+    }
+
+    stages {
         stage('Clone Code') {
-            echo "--- Cloning source code ---"
-            checkout scm
+            steps {
+                echo '--- Cloning source code ---'
+                checkout scm
+            }
         }
 
         stage('SonarQube Scan') {
-            container('sonar-scanner') {
-                withCredentials([string(credentialsId: 'jenkins-token1', variable: 'SONAR_TOKEN')]) {
-                    sh '''
-                        sonar-scanner \
-                        -Dsonar.projectKey=gemini-clone \
-                        -Dsonar.sources=. \
-                        -Dsonar.host.url=http://sonarqube-sonarqube.sonarqube.svc.cluster.local:9000 \
-                        -Dsonar.token=$SONAR_TOKEN \
-                        -Dsonar.verbose=true
-                    '''
+            steps {
+                container('sonar-scanner') {
+                    withCredentials([string(credentialsId: 'SONAR_TOKEN', variable: 'SONAR_TOKEN')]) {
+                        sh '''
+                            sonar-scanner \
+                                -Dsonar.projectKey=gemini-clone \
+                                -Dsonar.sources=. \
+                                -Dsonar.host.url=$SONAR_HOST_URL \
+                                -Dsonar.login=$SONAR_TOKEN \
+                                -Dsonar.verbose=true
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Trivy Scan') {
+            steps {
+                container('trivy') {
+                    sh 'trivy fs --exit-code 1 --severity HIGH,CRITICAL .'
                 }
             }
         }
 
         stage('Build with Kaniko') {
-            container('kaniko') {
-                echo "--- Running Kaniko build ---"
-                sh 'echo "Kaniko build placeholder"'
+            steps {
+                container('kaniko') {
+                    sh '''
+                        /kaniko/executor \
+                            --context $WORKSPACE \
+                            --dockerfile $WORKSPACE/Dockerfile \
+                            --destination your-dockerhub-user/gemini-clone:latest \
+                            --cache=true
+                    '''
+                }
             }
         }
+    }
 
-        stage('Security Scan with Trivy') {
-            container('trivy') {
-                echo "--- Running Trivy scan ---"
-                sh 'echo "Trivy scan placeholder"'
-            }
+    post {
+        success {
+            echo 'Pipeline finished successfully!'
         }
-
-        stage('Post Actions') {
-            echo "--- Pipeline finished ---"
+        failure {
+            echo 'Pipeline failed!'
         }
     }
 }
