@@ -1,50 +1,74 @@
-podTemplate(yamlFile: 'pod-template.yaml') {
-    node(POD_LABEL) {
+podTemplate(
+    label: 'devsecops-agent',
+    containers: [
+        containerTemplate(
+            name: 'jnlp',
+            image: 'jenkins/inbound-agent:alpine',
+            command: 'cat',
+            ttyEnabled: true
+        ),
+        containerTemplate(
+            name: 'sonar-scanner',
+            image: 'sonarsource/sonar-scanner-cli:latest',
+            command: 'cat',
+            ttyEnabled: true
+        ),
+        containerTemplate(
+            name: 'kaniko',
+            image: 'gcr.io/kaniko-project/executor:debug',
+            command: 'cat',
+            ttyEnabled: true
+        ),
+        containerTemplate(
+            name: 'trivy',
+            image: 'aquasec/trivy:latest',
+            command: 'cat',
+            ttyEnabled: true
+        )
+    ],
+    volumes: [
+        emptyDirVolume(mountPath: '/home/jenkins/agent', memory: false)
+    ],
+    idleMinutes: 1   // Keep pod alive for 1 minute after job completion
+) {
+    node('devsecops-agent') {
 
         stage('Clone Code') {
-            echo '--- Cloning source code ---'
+            echo "--- Cloning source code ---"
             checkout scm
         }
 
         stage('SonarQube Scan') {
             container('sonar-scanner') {
                 withCredentials([string(credentialsId: 'jenkins-token1', variable: 'SONAR_TOKEN')]) {
-                    sh """
-                        echo '--- Running SonarQube scan ---'
+                    sh '''
                         sonar-scanner \
                         -Dsonar.projectKey=gemini-clone \
                         -Dsonar.sources=. \
                         -Dsonar.host.url=http://sonarqube-sonarqube.sonarqube.svc.cluster.local:9000 \
                         -Dsonar.token=$SONAR_TOKEN \
                         -Dsonar.verbose=true
-                    """
+                    '''
                 }
             }
         }
 
-        stage('Debug Delay') {
-            echo 'Sleeping 60 seconds to keep devsecops-agent pod alive for logs...'
-            sleep 60
-        }
-
-        stage('Build and Push with Kaniko') {
+        stage('Build with Kaniko') {
             container('kaniko') {
-                sh 'echo "Build step goes here"'
+                echo "--- Running Kaniko build ---"
+                sh 'echo "Kaniko build placeholder"'
             }
         }
 
-        stage('Scan Image with Trivy') {
+        stage('Security Scan with Trivy') {
             container('trivy') {
-                sh 'echo "Trivy scan goes here"'
+                echo "--- Running Trivy scan ---"
+                sh 'echo "Trivy scan placeholder"'
             }
         }
 
-        stage('Test') {
-            sh 'echo "Test stage"'
-        }
-
-        stage('Deploy') {
-            sh 'echo "Deploy stage"'
+        stage('Post Actions') {
+            echo "--- Pipeline finished ---"
         }
     }
 }
