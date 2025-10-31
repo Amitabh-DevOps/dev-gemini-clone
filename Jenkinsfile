@@ -10,7 +10,6 @@ pipeline {
     }
 
     stages {
-
         stage('Clone Code') {
             steps {
                 echo "--- Cloning source code ---"
@@ -21,16 +20,20 @@ pipeline {
         stage('Scan with SonarQube') {
             steps {
                 container('sonar-scanner') {
-                    withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                    withCredentials([string(credentialsId: 'jenkins-token1', variable: 'SONAR_TOKEN')]) {
                         sh '''
-                          echo "--- Running SonarQube scan ---"
-                          sonar-scanner \
-                            -Dsonar.projectKey=gemini-clone \
-                            -Dsonar.sources=. \
-                            -Dsonar.host.url=${SONAR_HOST} \
-                            -Dsonar.token=${SONAR_TOKEN} \
-                            -Dsonar.verbose=true
-                          echo "--- SonarQube scan complete ---"
+                            echo "--- Running SonarQube scan ---"
+                            echo "Using token: ${SONAR_TOKEN:0:4}****"  # Shows first 4 chars only
+                            
+                            sonar-scanner \
+                              -Dsonar.projectKey=gemini-clone \
+                              -Dsonar.sources=. \
+                              -Dsonar.host.url=${SONAR_HOST} \
+                              -Dsonar.token=${SONAR_TOKEN} \
+                              -Dsonar.verbose=true
+
+                            echo "--- Sonar scan finished, delaying termination for 20 seconds ---"
+                            sleep 20
                         '''
                     }
                 }
@@ -65,43 +68,26 @@ pipeline {
         stage('Scan Image with Trivy') {
             steps {
                 container('trivy') {
-                    sh '''
+                    sh """
                       echo "--- Running Trivy scan on ${IMAGE_DESTINATION} ---"
                       trivy image --severity HIGH,CRITICAL ${IMAGE_DESTINATION}
                       echo "--- Trivy scan complete ---"
-                    '''
+                    """
                 }
             }
         }
 
         stage('Test') {
             steps {
-                echo "--- Running tests ---"
+                echo "Running tests..."
                 sh 'echo Tests passed!'
             }
         }
 
         stage('Deploy') {
             steps {
-                echo "--- Deploying image ${IMAGE_DESTINATION} to ${MY_ENV} environment ---"
+                echo "Deploying image ${IMAGE_DESTINATION} to ${MY_ENV} environment"
             }
-        }
-
-        stage('Debug Delay') {
-            steps {
-                echo "--- Keeping devsecops-agent pod alive for 60 seconds to check logs ---"
-                sh 'sleep 60'
-            }
-        }
-
-    }
-
-    post {
-        always {
-            echo "--- Pipeline finished ---"
-        }
-        failure {
-            echo "--- Pipeline failed ---"
         }
     }
 }
