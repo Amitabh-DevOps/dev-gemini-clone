@@ -15,7 +15,7 @@ pipeline {
         stage('Clone Code') {
             steps {
                 echo "--- Cloning source code ---"
-                git branch: 'feat/kind', url: 'https://github.com/Amitabh-DevOps/dev-gemini-clone.git'
+                git branch: 'feat/kind', url: 'https://github.com/harisamjad0158/dev-gemini-clone.git'
             }
         }
 
