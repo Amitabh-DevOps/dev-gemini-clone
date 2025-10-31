@@ -24,7 +24,7 @@ pipeline {
                         sh '''
                             echo "--- Running SonarQube scan ---"
                             echo "Using token: ${SONAR_TOKEN:0:4}****"  # Shows first 4 chars only
-                            
+
                             sonar-scanner \
                               -Dsonar.projectKey=gemini-clone \
                               -Dsonar.sources=. \
@@ -32,8 +32,8 @@ pipeline {
                               -Dsonar.token=${SONAR_TOKEN} \
                               -Dsonar.verbose=true
 
-                            echo "--- Sonar scan finished, delaying termination for 20 seconds ---"
-                            sleep 20
+                            echo "--- Sonar scan finished, delaying pod termination for 60 seconds ---"
+                            sleep 60
                         '''
                     }
                 }
