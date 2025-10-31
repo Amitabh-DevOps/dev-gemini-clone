@@ -1,59 +1,45 @@
 pipeline {
     agent {
         kubernetes {
-            label 'devsecops-agent'
+            // Use pod template from the repo
+            yamlFile 'pod-template.yaml'
             defaultContainer 'jnlp'
-            yamlFile 'pod-template.yaml'  // Your pod template file in workspace
         }
     }
 
     environment {
-        SONAR_HOST_URL = 'http://sonarqube-sonarqube.sonarqube.svc.cluster.local:9000'
+        // SonarQube credential ID stored in Jenkins
+        SONAR_TOKEN = credentials('sonar-token')
     }
 
     stages {
+
         stage('Clone Code') {
             steps {
-                echo '--- Cloning source code ---'
-                checkout scm
+                echo "--- Cloning source code ---"
+                checkout([$class: 'GitSCM',
+                          branches: [[name: '*/feat/kind']],
+                          userRemoteConfigs: [[
+                              url: 'https://github.com/harisamjad0158/dev-gemini-clone.git'
+                          ]]
+                ])
             }
         }
 
         stage('SonarQube Scan') {
             steps {
                 container('sonar-scanner') {
-                    withCredentials([string(credentialsId: 'SONAR_TOKEN', variable: 'SONAR_TOKEN')]) {
+                    echo "--- Running SonarQube Scanner ---"
+                    withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
                         sh '''
-                            sonar-scanner \
-                                -Dsonar.projectKey=gemini-clone \
-                                -Dsonar.sources=. \
-                                -Dsonar.host.url=$SONAR_HOST_URL \
-                                -Dsonar.login=$SONAR_TOKEN \
-                                -Dsonar.verbose=true
+                        sonar-scanner \
+                            -Dsonar.projectKey=gemini-clone \
+                            -Dsonar.sources=. \
+                            -Dsonar.host.url=http://sonarqube-sonarqube.sonarqube.svc.cluster.local:9000 \
+                            -Dsonar.token=$SONAR_TOKEN \
+                            -Dsonar.verbose=true
                         '''
                     }
-                }
-            }
-        }
-
-        stage('Trivy Scan') {
-            steps {
-                container('trivy') {
-                    sh 'trivy fs --exit-code 1 --severity HIGH,CRITICAL .'
-                }
-            }
-        }
-
-        stage('Build with Kaniko') {
-            steps {
-                container('kaniko') {
-                    sh '''
-                        /kaniko/executor \
-                            --context $WORKSPACE \
-                            --dockerfile $WORKSPACE/Dockerfile \
-                            --destination your-dockerhub-user/gemini-clone:latest \
-                            --cache=true
-                    '''
                 }
             }
         }
@@ -61,10 +47,10 @@ pipeline {
 
     post {
         success {
-            echo 'Pipeline finished successfully!'
+            echo "Pipeline completed successfully!"
         }
         failure {
-            echo 'Pipeline failed!'
+            echo "Pipeline failed!"
         }
     }
 }
