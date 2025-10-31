@@ -28,7 +28,8 @@ pipeline {
                             -Dsonar.projectKey=gemini-clone \
                             -Dsonar.sources=. \
                             -Dsonar.host.url=${SONAR_HOST} \
-                            -Dsonar.token=${SONAR_TOKEN}
+                            -Dsonar.token=${SONAR_TOKEN} \
+                            -Dsonar.verbose=true
                           echo "--- SonarQube scan complete ---"
                         '''
                     }
@@ -39,8 +40,8 @@ pipeline {
         stage('Build and Push with Kaniko') {
             steps {
                 container('kaniko') {
-                    withCredentials([usernamePassword(credentialsId: 'dockerhub-creds',
-                                                     usernameVariable: 'DOCKER_USER',
+                    withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', 
+                                                     usernameVariable: 'DOCKER_USER', 
                                                      passwordVariable: 'DOCKER_PASS')]) {
                         sh '''
                           echo "--- Creating Kaniko config.json ---"
@@ -88,10 +89,19 @@ pipeline {
 
         stage('Debug Delay') {
             steps {
-                echo "--- Debug delay: waiting 60 seconds before terminating pod ---"
+                echo "--- Keeping devsecops-agent pod alive for 60 seconds to check logs ---"
                 sh 'sleep 60'
             }
         }
 
+    }
+
+    post {
+        always {
+            echo "--- Pipeline finished ---"
+        }
+        failure {
+            echo "--- Pipeline failed ---"
+        }
     }
 }
